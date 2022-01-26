@@ -7,6 +7,14 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/Neg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NEG"
+        app:layout_constraintBaseline_toBaselineOf="@+id/clearButton"
+        app:layout_constraintEnd_toEndOf="@+id/add" />
+
     <EditText
         android:id="@+id/result"
         android:layout_width="wrap_content"
@@ -212,7 +220,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="CLR"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/zero"
         app:layout_constraintTop_toBottomOf="@+id/zero" />
 </androidx.constraintlayout.widget.ConstraintLayout>

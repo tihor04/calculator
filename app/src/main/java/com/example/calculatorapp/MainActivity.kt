@@ -8,6 +8,12 @@ import android.widget.EditText
 import android.widget.TextView
 import java.lang.NumberFormatException
 
+private const val STATE_PENDING_OPERATION="pendingoperatin"
+private const val STATE_OPRAND1="oprand1"
+private const val STATE_OPRAND1_STORED="oprand1_stored"
+
+
+
 class MainActivity : AppCompatActivity() {
     private lateinit var result: EditText
     private lateinit var newnumber:EditText
@@ -18,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     //variale to use the operands and type of calculations
 
     private  var oprand1:Double?=null
-    private var oprand2:Double=0.0
+
     private var pendingoperation="="
 
 
@@ -52,6 +58,8 @@ class MainActivity : AppCompatActivity() {
         val buttonmultiply:Button=findViewById(R.id.multiply)
         val buttondivide:Button=findViewById(R.id.divide)
         val buttonequals:Button=findViewById(R.id.equals)
+        val buttonNeg:Button=findViewById(R.id.Neg)
+
 
 
         val listner= View.OnClickListener { v->
@@ -93,7 +101,7 @@ class MainActivity : AppCompatActivity() {
 
         val clearopration=View.OnClickListener { v->
             oprand1=null
-            oprand2 = 0.0
+
             pendingoperation="="
             result.setText("")
             newnumber.setText("")
@@ -101,16 +109,23 @@ class MainActivity : AppCompatActivity() {
         }
         clearbutton.setOnClickListener(clearopration)
 
+        buttonNeg.setOnClickListener { View ->
+            val value = newnumber.text.toString()
+            if (value.isEmpty()) {
+              newnumber.setText("-")
+            }
+            else
+            {
+                try{
+                    var doubleValue=value.toDouble()
+                    doubleValue*=-1
+                    newnumber.setText(doubleValue.toString())
 
-
-
-
-
-
-
-
-
-
+                }catch (e:NumberFormatException){
+                    newnumber.setText("")
+                }
+            }
+        }
 
 
     }
@@ -122,7 +137,6 @@ class MainActivity : AppCompatActivity() {
        }
        else
        {
-           oprand2=value
 
            if(pendingoperation=="=")
            {
@@ -132,17 +146,15 @@ class MainActivity : AppCompatActivity() {
            {
                when(pendingoperation)
                {
-                   "="->oprand1=oprand2
-                    "/"->if(oprand2==0.0)
-                        {
-                           oprand1=Double.NaN //handling the divided by zero case
-                        }
-                        else {
-                         oprand1=oprand1!!/oprand2
-                      }
-                   "*"->oprand1=oprand1!! *oprand2
-                   "-"->oprand1=oprand1!!-oprand2
-                   "+"->oprand1=oprand1!!+oprand2
+                   "="->oprand1=value
+                    "/"-> oprand1 = if(value==0.0) {
+                        Double.NaN //handling the divided by zero case
+                    } else {
+                        oprand1!!/value
+                    }
+                   "*"->oprand1=oprand1!! *value
+                   "-"->oprand1=oprand1!!-value
+                   "+"->oprand1=oprand1!!+value
 
 
                }
@@ -151,4 +163,33 @@ class MainActivity : AppCompatActivity() {
        result.setText(oprand1.toString())
        newnumber.setText("")
    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if(oprand1!=null) {
+            outState.putDouble(STATE_OPRAND1, oprand1!!)
+            outState.putBoolean(STATE_OPRAND1_STORED,true)
+
+        }
+
+        outState.putString(STATE_PENDING_OPERATION,pendingoperation)
+
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        oprand1 = if(savedInstanceState.getBoolean(STATE_OPRAND1_STORED,false)) {
+            savedInstanceState.getDouble(STATE_OPRAND1)
+        } else
+            null
+
+
+        pendingoperation= savedInstanceState.getString(STATE_PENDING_OPERATION)?:""
+
+        displayOperation.text=pendingoperation
+
+
+
+    }
 }
